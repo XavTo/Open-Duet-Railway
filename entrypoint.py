@@ -23,6 +23,9 @@ if not os.environ.get('TOKEN_ENCRYPTION_KEYS'):
 os.environ['OPEN_DOTS_PORT'] = os.environ.get('PORT', '8000')
 subprocess.run([sys.executable, '-m', 'app.server', 'migrate'], check=True)
 
+# This launcher lives outside the backend; make its Docker WORKDIR importable.
+sys.path.insert(0, os.getcwd())
+
 async def bootstrap_owner():
     from app.auth import store
     from app.db.session import AsyncSessionLocal, engine
