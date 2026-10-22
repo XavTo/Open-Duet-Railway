@@ -69,6 +69,7 @@ RUN apt-get update \
  && chown opendots:opendots /data
 COPY --from=backend /opt/venv /opt/venv
 COPY --from=engines /out /opt/engines
+COPY --from=caddy@sha256:24ec7b05bc532c7bb57f727030c5056e257ff7138b4b50460306819ff79362bd /usr/bin/caddy /usr/local/bin/caddy
 COPY --from=source /src/open-duet/backend /app/backend
 COPY --from=pages /src/frontend/out /app/ui
 
@@ -78,6 +79,7 @@ ENV PATH=/opt/venv/bin:/opt/engines/bin:$PATH \
     HOME=/data \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
+    RAILWAY_HTTPS_PROXY=true \
     OPEN_DOTS_HOST=0.0.0.0 \
     OPEN_DOTS_PORT=8000 \
     OPEN_DOTS_ALLOW_PUBLIC_BIND=1 \
@@ -99,4 +101,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
 # upgrade (a SQLite file is copied aside first). A database that is not ready stops the container
 # here, with the reason in its log, instead of serving.
 COPY entrypoint.py /opt/railway/entrypoint.py
+COPY Caddyfile /opt/railway/Caddyfile
 ENTRYPOINT ["tini", "--", "python", "/opt/railway/entrypoint.py"]

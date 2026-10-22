@@ -10,6 +10,7 @@ Deploy the experimental [Open Duet](https://github.com/Anil-matcha/open-duet) pe
 - Unprivileged runtime after repairing the fresh volume's ownership.
 - Claude Code and Codex CLIs installed at build time. Upstream also offers an OpenAI-compatible chat engine configured in **Settings → Engines**; deployment does not require a model key.
 - Native `/api/v1/health` readiness check, one replica and graceful shutdown.
+- Same-container Caddy proxy, with the backend bound to loopback, to preserve secure HTTPS session cookies behind Railway's public edge. Streaming responses are flushed immediately.
 
 ## First login and model setup
 
@@ -22,6 +23,8 @@ Open the generated Railway domain and sign in using `APP_PASSWORD` from the serv
 Use one replica. Keep `/data` attached, `ENCRYPTION_SECRET` unchanged and the generated domain or custom domain reflected in `OPEN_DOTS_PUBLIC_URL`, `FRONTEND_ORIGINS` and `TRUSTED_HOSTS`. The upstream migration command runs before every start. Back up the Railway volume and encryption secret before upgrades.
 
 This build uses upstream commit `65b5f05e95377d247fbfb087dea52cc0bd4dc9bc`, Claude Code `2.1.308` and Codex `0.163.0`. The Dockerfile follows the upstream server image; `entrypoint.py` performs Railway owner bootstrap without modifying application auth or approval policies.
+
+Caddy `2.11.7` is pinned by image digest. It listens on `PORT` (8000 by default), proxies to the backend on loopback port 8001 (8002 if `PORT=8001`), and supplies the HTTPS scheme documented for Railway public inbound traffic. Keep this proxy configuration on Railway's HTTPS public networking; it is not a general-purpose plain HTTP deployment recipe. Host checks, origin checks, CSRF protection and approval prompts remain enabled.
 
 ## Limits
 

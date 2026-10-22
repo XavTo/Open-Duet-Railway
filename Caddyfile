@@ -1,0 +1,13 @@
+{
+    admin off
+    auto_https off
+}
+
+:{$PORT:8000} {
+    reverse_proxy 127.0.0.1:{$DUET_BACKEND_PORT:8001} {
+        # Public inbound requests are HTTPS at Railway's edge. Do not trust a
+        # client-supplied scheme or enable arbitrary trusted proxy networks.
+        header_up X-Forwarded-Proto https
+        flush_interval -1
+    }
+}
