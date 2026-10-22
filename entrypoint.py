@@ -65,7 +65,7 @@ children = []
 code = 0
 try:
     children.append(subprocess.Popen([sys.executable, '-m', 'app.server']))
-    children.append(subprocess.Popen(['caddy', 'run', '--config', '/opt/railway/Caddyfile', '--adapter', 'caddyfile']))
+    children.append(subprocess.Popen(['caddy', 'run', '--config', str(Path(__file__).with_name('Caddyfile')), '--adapter', 'caddyfile']))
     while not stopping:
         exited = next((child for child in children if child.poll() is not None), None)
         if exited is not None:
